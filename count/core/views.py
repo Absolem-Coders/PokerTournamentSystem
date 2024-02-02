@@ -8,6 +8,8 @@ from .serializers import JogadorSerializer
 from django.db.models import Sum
 from .models import Level
 from .serializers import LevelSerializer
+from django.utils import timezone
+from datetime import timedelta
 
 @api_view(['GET'])
 def jogador_list(request):
@@ -140,3 +142,59 @@ def add_jogador(request, torneio_id):
     torneio.add_jogador()
     serializer = TorneioSerializer(torneio)
     return Response(serializer.data)
+
+@api_view(['GET'])
+def calcular_chips(request, torneio_id):
+    try:
+        torneio = Torneio.objects.get(id=torneio_id)
+    except Torneio.DoesNotExist:
+        return Response({'error': f'Torneio {torneio_id} não encontrado.'}, status=404)
+
+    # Calcular os totais de buy-ins, rebuys e addons
+    total_premio_by = Jogador.objects.aggregate(Sum('buy_in'))['buy_in__sum'] or 0
+    total_premio_rb = Jogador.objects.aggregate(Sum('rebuys'))['rebuys__sum'] or 0
+    total_premio_ad = Jogador.objects.aggregate(Sum('add_ons'))['add_ons__sum'] or 0
+    
+
+    # Calcular o valor total de fichas no torneio
+    total_fichas = ((total_premio_by + total_premio_rb) * 30000) + (total_premio_ad * 70000)
+
+    # Calcular o stack médio
+    if torneio.jogadores_atual > 0:
+        stack_medio = total_fichas / torneio.jogadores_atual
+    else:
+        stack_medio = 0
+
+    return Response({
+        'total_fichas': total_fichas,
+        'stack_medio': stack_medio,
+    })
+    
+    
+    from datetime import timedelta
+
+@api_view(['GET'])
+def nivel_atual(request, torneio_id):
+    torneio = get_object_or_404(Torneio, id=torneio_id)
+
+    tempo_decorrido = timezone.now() - torneio.horario_inicio
+    minutos_decorridos = tempo_decorrido.total_seconds() / 60
+    # Calcular o número do nível com base no tempo decorrido e na duração de cada nível (15 minutos)
+    numero_nivel = int(minutos_decorridos / 15) + 1
+
+    # Obter o nível correspondente ao número calculado
+    try:
+        nivel = Level.objects.get(nivel=numero_nivel)
+    except Level.DoesNotExist:
+        return Response({'mensagem': 'Torneio em andamento, mas nível não encontrado.', "nivel": numero_nivel}, status=200)
+
+    return Response({
+        'numero_nivel': numero_nivel,
+        'nivel_atual': str(nivel),
+    })
+    
+@api_view(['POST'])
+def comecar_torneio(request, torneio_id):
+    torneio = get_object_or_404(Torneio, id=torneio_id)
+    torneio.comecar_torneio()
+    return Response({'message': f'Torneio {torneio_id} começou com sucesso!'})

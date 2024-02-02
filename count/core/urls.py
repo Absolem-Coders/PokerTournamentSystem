@@ -12,7 +12,9 @@ from .views import (
     torneio_detail,
     cair_jogador,
     add_jogador,
-    calcular_chips
+    calcular_chips,
+    nivel_atual,
+    comecar_torneio
 )
 
 urlpatterns = [
@@ -28,4 +30,6 @@ urlpatterns = [
     path('api/cair_jogador/<int:torneio_id>/', cair_jogador, name='cair_jogador'),
     path('api/add_jogador/<int:torneio_id>/', add_jogador, name='add_jogador'),
     path('api/torneio/<int:torneio_id>/chips/', calcular_chips, name='calcular_chips'),
+    path('api/torneio/<int:torneio_id>/nivel_atual/', nivel_atual, name='nivel_atual'),
+    path('api/comecar_torneio/<int:torneio_id>/', comecar_torneio, name='comecar_torneio'),
 ]

@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.utils import timezone
 
 # Create your models here.
 class Jogador(models.Model):
@@ -23,6 +23,7 @@ class Torneio(models.Model):
     nome_torneio = models.CharField(max_length=100)
     jogadores_total = models.IntegerField()
     jogadores_atual = models.IntegerField()
+    horario_inicio = models.DateTimeField(default=timezone.now)
     horario_intervalo = models.DateTimeField()
     buyin_valor = models.IntegerField()
     rebuy_valor = models.IntegerField()
@@ -37,4 +38,7 @@ class Torneio(models.Model):
             self.save()
     def add_jogador(self):
         self.jogadores_atual += 1
+        self.save()
+    def comecar_torneio(self):
+        self.horario_inicio = timezone.now()
         self.save()

@@ -8,6 +8,8 @@ from .serializers import JogadorSerializer
 from django.db.models import Sum
 from .models import Level
 from .serializers import LevelSerializer
+from django.utils import timezone
+from datetime import timedelta
 
 @api_view(['GET'])
 def jogador_list(request):
@@ -167,3 +169,32 @@ def calcular_chips(request, torneio_id):
         'total_fichas': total_fichas,
         'stack_medio': stack_medio,
     })
+    
+    
+    from datetime import timedelta
+
+@api_view(['GET'])
+def nivel_atual(request, torneio_id):
+    torneio = get_object_or_404(Torneio, id=torneio_id)
+
+    tempo_decorrido = timezone.now() - torneio.horario_inicio
+    minutos_decorridos = tempo_decorrido.total_seconds() / 60
+    # Calcular o número do nível com base no tempo decorrido e na duração de cada nível (15 minutos)
+    numero_nivel = int(minutos_decorridos / 15) + 1
+
+    # Obter o nível correspondente ao número calculado
+    try:
+        nivel = Level.objects.get(nivel=numero_nivel)
+    except Level.DoesNotExist:
+        return Response({'mensagem': 'Torneio em andamento, mas nível não encontrado.', "nivel": numero_nivel}, status=200)
+
+    return Response({
+        'numero_nivel': numero_nivel,
+        'nivel_atual': str(nivel),
+    })
+    
+@api_view(['POST'])
+def comecar_torneio(request, torneio_id):
+    torneio = get_object_or_404(Torneio, id=torneio_id)
+    torneio.comecar_torneio()
+    return Response({'message': f'Torneio {torneio_id} começou com sucesso!'})

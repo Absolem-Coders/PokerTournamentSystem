@@ -10,7 +10,7 @@ from .models import Level
 from .serializers import LevelSerializer
 from django.utils import timezone
 from datetime import timedelta
-import prices 
+from .prices import buyin, buyin_preco, rebuy, rebuy_preco, addon, addon_preco
 
 @api_view(['GET'])
 def jogador_list(request):
@@ -56,9 +56,9 @@ def total_premio(request):
     total_premio_rb = Jogador.objects.aggregate(Sum('rebuys'))['rebuys__sum'] or 0
     total_premio_ad = Jogador.objects.aggregate(Sum('add_ons'))['add_ons__sum'] or 0
     
-    total_premio_by_valor = total_premio_by * prices.buyin_preco
-    total_premio_rb_valor = total_premio_rb * prices.rebuy_preco
-    total_premio_ad_valor = total_premio_ad * prices.addon_preco
+    total_premio_by_valor = total_premio_by * buyin_preco
+    total_premio_rb_valor = total_premio_rb * rebuy_preco
+    total_premio_ad_valor = total_premio_ad * addon_preco
     total = total_premio_by_valor + total_premio_rb_valor + total_premio_ad_valor
 
     return Response({
@@ -158,7 +158,7 @@ def calcular_chips(request, torneio_id):
     
 
     # Calcular o valor total de fichas no torneio
-    total_fichas = (total_premio_by * prices.buyin) + (total_premio_ad * prices.addon) + (total_premio_rb * prices.rebuy)
+    total_fichas = (total_premio_by * buyin) + (total_premio_ad * addon) + (total_premio_rb * rebuy)
 
     # Calcular o stack médio
     if torneio.jogadores_atual > 0:

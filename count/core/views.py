@@ -184,7 +184,7 @@ def nivel_atual(request, torneio_id):
         duracao_nivel = torneio.tempo_blind_preintervalo  # Duração do nível após o intervalo
     else:
         duracao_nivel = torneio.tempo_blind_posintervalo  # Duração do nível antes do intervalo
-        minutos_decorridos -= torneio.tempo_intervalo
+        
 
     numero_nivel = int(minutos_decorridos / duracao_nivel) + 1
     

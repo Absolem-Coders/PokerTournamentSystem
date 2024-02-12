@@ -10,7 +10,7 @@ from .models import Level
 from .serializers import LevelSerializer
 from django.utils import timezone
 from datetime import timedelta
-import prices 
+from .prices import rebuy_preco, rebuy, addon, addon_preco, buyin, buyin_preco 
 
 @api_view(['GET'])
 def jogador_list(request):
@@ -171,8 +171,6 @@ def calcular_chips(request, torneio_id):
         'stack_medio': stack_medio,
     })
     
-    
-    from datetime import timedelta
 
 @api_view(['GET'])
 def nivel_atual(request, torneio_id):
@@ -180,9 +178,16 @@ def nivel_atual(request, torneio_id):
 
     tempo_decorrido = timezone.now() - torneio.horario_inicio
     minutos_decorridos = tempo_decorrido.total_seconds() / 60
-    # Calcular o número do nível com base no tempo decorrido e na duração de cada nível (15 minutos)
-    numero_nivel = int(minutos_decorridos / 15) + 1
+    
+    # Calcular o número do nível com base no tempo decorrido e na duração de cada nível
+    if torneio.intervalo_ativo:
+        duracao_nivel = torneio.tempo_blind_preintervalo  # Duração do nível após o intervalo
+    else:
+        duracao_nivel = torneio.tempo_blind_posintervalo  # Duração do nível antes do intervalo
+        minutos_decorridos -= torneio.tempo_intervalo
 
+    numero_nivel = int(minutos_decorridos / duracao_nivel) + 1
+    
     # Obter o nível correspondente ao número calculado
     try:
         nivel = Level.objects.get(nivel=numero_nivel)
@@ -199,3 +204,15 @@ def comecar_torneio(request, torneio_id):
     torneio = get_object_or_404(Torneio, id=torneio_id)
     torneio.comecar_torneio()
     return Response({'message': f'Torneio {torneio_id} começou com sucesso!'})
+
+@api_view(['POST'])
+def ativar_intervalo(request, torneio_id):
+    try:
+        torneio = Torneio.objects.get(id=torneio_id)
+    except Torneio.DoesNotExist:
+        return Response({'error': f'Torneio {torneio_id} não encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+
+    torneio.intervalo_ativo = True
+    torneio.save()
+
+    return Response({'message': 'Intervalo ativado com sucesso!'})

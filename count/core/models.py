@@ -28,6 +28,10 @@ class Torneio(models.Model):
     buyin_valor = models.IntegerField()
     rebuy_valor = models.IntegerField()
     addon_valor = models.IntegerField()
+    intervalo_ativo = models.BooleanField(default=False)
+    tempo_blind_preintervalo = models.IntegerField(default=20) # duração das blinds pre intervalo 
+    tempo_blind_posintervalo = models.IntegerField(default=15) # duracao das blinds pos intervalo 
+    tempo_intervalo = models.IntegerField(default=20) # tempo de intervalo
 
     def __str__(self):
         return f'Torneio {self.id}'
@@ -41,4 +45,5 @@ class Torneio(models.Model):
         self.save()
     def comecar_torneio(self):
         self.horario_inicio = timezone.now()
+        self.intervalo_ativo = False  # Ou True, dependendo da lógica do seu torneio
         self.save()

@@ -14,7 +14,8 @@ from .views import (
     add_jogador,
     calcular_chips,
     nivel_atual,
-    comecar_torneio
+    comecar_torneio,
+    ativar_intervalo
 )
 
 urlpatterns = [
@@ -32,4 +33,5 @@ urlpatterns = [
     path('api/torneio/<int:torneio_id>/chips/', calcular_chips, name='calcular_chips'),
     path('api/torneio/<int:torneio_id>/nivel_atual/', nivel_atual, name='nivel_atual'),
     path('api/comecar_torneio/<int:torneio_id>/', comecar_torneio, name='comecar_torneio'),
+    path('ativar_intervalo/<int:torneio_id>/', ativar_intervalo, name='ativar_intervalo'),
 ]

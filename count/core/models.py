@@ -3,10 +3,19 @@ from django.utils import timezone
 
 # Create your models here.
 class Jogador(models.Model):
+    PAGO_CHOICES = [
+        ('nao', 'Não'),
+        ('sim', 'Sim'),
+        ('parcial', 'Parcial'),
+    ]
+    
     nome = models.CharField(max_length=100)
     buy_in = models.IntegerField(default=1)
     rebuys = models.IntegerField(default=0)
     add_ons = models.IntegerField(default=0)
+    fichasbonus = models.IntegerField(default=0)
+    pago = models.CharField(max_length=10, choices=PAGO_CHOICES, default='nao')
+    observacoes_pagamento = models.TextField(blank=True, null=True)
     def __str__(self):
         return self.nome
     

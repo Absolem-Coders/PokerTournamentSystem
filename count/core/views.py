@@ -155,10 +155,10 @@ def calcular_chips(request, torneio_id):
     total_premio_by = Jogador.objects.aggregate(Sum('buy_in'))['buy_in__sum'] or 0
     total_premio_rb = Jogador.objects.aggregate(Sum('rebuys'))['rebuys__sum'] or 0
     total_premio_ad = Jogador.objects.aggregate(Sum('add_ons'))['add_ons__sum'] or 0
-    
+    totalbonus = Jogador.objects.aggregate(Sum('fichasbonus'))['fichasbonus__sum'] or 0
 
     # Calcular o valor total de fichas no torneio
-    total_fichas = (total_premio_by * buyin) + (total_premio_ad * addon) + (total_premio_rb * rebuy)
+    total_fichas = (total_premio_by * buyin) + (total_premio_ad * addon) + (total_premio_rb * rebuy) + totalbonus
 
     # Calcular o stack médio
     if torneio.jogadores_atual > 0:
@@ -193,9 +193,13 @@ def nivel_atual(request, torneio_id):
         print(niveis_antes_intervalo)
         # Calcular o número do nível considerando o tempo decorrido após o intervalo, desconsiderando o tempo de intervalo
         numero_nivel = niveis_antes_intervalo + int(minutosposintervalo / duracao_nivel)
+        if numero_nivel == 0:
+            numero_nivel = 1
     else:
         duracao_nivel = torneio.tempo_blind_preintervalo  # Duração do nível antes do intervalo
         numero_nivel = int(minutos_decorridos / duracao_nivel) + 1
+        if numero_nivel == 0:
+            numero_nivel = 1
 
     # Obter o nível correspondente ao número calculado
     try:

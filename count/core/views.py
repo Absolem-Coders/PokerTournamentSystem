@@ -183,24 +183,25 @@ def nivel_atual(request, torneio_id):
     if torneio.intervalo_ativo:
         duracao_nivel = torneio.tempo_blind_posintervalo  # Duração do nível após o intervalo
         minutosposintervalo = timezone.now() - torneio.horario_intervalo
-        minutosposintervalo = minutosposintervalo.total_seconds() / 60
+        minutosposintervalo = round(minutosposintervalo.total_seconds() / 60)
         
         niveisantes = torneio.horario_intervalo - torneio.horario_inicio
-        niveisantes = niveisantes.total_seconds() / 60
+        niveisantes = round(niveisantes.total_seconds() / 60)
         
         # Calcular quantos níveis aconteceram desde o início do torneio até o intervalo com o blind pré-intervalo
-        niveis_antes_intervalo = int(niveisantes / torneio.tempo_blind_preintervalo)
-        print(niveis_antes_intervalo)
+        niveis_antes_intervalo = round(int(niveisantes / torneio.tempo_blind_preintervalo))
         # Calcular o número do nível considerando o tempo decorrido após o intervalo, desconsiderando o tempo de intervalo
-        numero_nivel = niveis_antes_intervalo + int(minutosposintervalo / duracao_nivel)
+        numero_nivel = round(niveis_antes_intervalo + int(minutosposintervalo / duracao_nivel))
         if numero_nivel == 0:
             numero_nivel = 1
+        print(niveisantes, niveis_antes_intervalo, minutosposintervalo, duracao_nivel)
     else:
         duracao_nivel = torneio.tempo_blind_preintervalo  # Duração do nível antes do intervalo
-        numero_nivel = int(minutos_decorridos / duracao_nivel) + 1
+        numero_nivel = round(int(minutos_decorridos / duracao_nivel) + 1)
         if numero_nivel == 0:
             numero_nivel = 1
-
+    
+    
     # Obter o nível correspondente ao número calculado
     try:
         nivel = Level.objects.get(nivel=numero_nivel)

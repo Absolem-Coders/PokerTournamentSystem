@@ -10,11 +10,7 @@ from .models import Level
 from .serializers import LevelSerializer
 from django.utils import timezone
 from datetime import timedelta
-<<<<<<< HEAD
-from .prices import rebuy_preco, rebuy, addon, addon_preco, buyin, buyin_preco 
-=======
 from .prices import buyin, buyin_preco, rebuy, rebuy_preco, addon, addon_preco
->>>>>>> 5a8d712fd05bce4725531250393b4739d61b881c
 
 @api_view(['GET'])
 def jogador_list(request):
